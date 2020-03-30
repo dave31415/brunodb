@@ -29,3 +29,7 @@ def load_cars_table(db):
     stream = stream_cars()
     table = get_table(db, structure)
     table.load_table(stream)
+
+
+def nice_to_have():
+    dbase.create_and_load_table(stream, structure)

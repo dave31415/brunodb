@@ -129,4 +129,4 @@ def get_table(db, structure):
     return Table(db,
                  structure['table_name'],
                  structure['schema'],
-                 structure['indices'])
+                 structure.get('indices', []))
