@@ -24,12 +24,7 @@ def stream_cars():
     return (dict(row) for row in DictReader(open(filename, 'r')))
 
 
-def load_cars_table(db):
-    structure = get_cars_structure()
+def load_cars_table(dbase):
     stream = stream_cars()
-    table = get_table(db, structure)
-    table.load_table(stream)
-
-
-def nice_to_have():
+    structure = get_cars_structure()
     dbase.create_and_load_table(stream, structure)

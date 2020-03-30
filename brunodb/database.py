@@ -88,3 +88,7 @@ class DBase:
         drop_table(self.db, table)
         assert table not in self.tables
         logger.info('table: %s dropped' % table)
+
+    def create_and_load_table(self, stream, structure):
+        table = get_table(self.db, structure)
+        table.load_table(stream)
