@@ -2,6 +2,7 @@ import sqlite3
 import logging
 from brunodb.sqlite_utils import get_db, drop_table, get_tables
 from brunodb.sqlite_utils import query_sql, list_tables
+from brunodb.table import get_table
 
 logger = logging.getLogger(__file__)
 database_global = {}

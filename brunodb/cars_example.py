@@ -1,5 +1,3 @@
-from brunodb.table import Table
-from brunodb.table import get_table
 from csv import DictReader
 import os
 
