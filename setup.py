@@ -1,3 +1,6 @@
+# following this
+# https://medium.com/@thucnc/how-to-publish-your-own-python-package-to-pypi-4318868210f9
+
 from setuptools import setup, find_packages
 
 with open('README.md') as readme_file:
@@ -8,7 +11,7 @@ with open('HISTORY.md') as history_file:
 
 setup_args = dict(
     name='brunodb',
-    version='0.1.0',
+    version='0.1.1',
     description='Useful wrapper for SQLite',
     long_description_content_type="text/markdown",
     long_description=README + '\n\n' + HISTORY,

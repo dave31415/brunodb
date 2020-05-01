@@ -1,5 +1,6 @@
 from csv import DictReader
 import os
+from itertools import cycle
 
 
 def get_cars_structure():
@@ -18,8 +19,13 @@ def get_example_data_dir():
 
 def stream_cars():
     filename = "%s/cars.csv" % get_example_data_dir()
-    print('Reading cars data from: %s' % filename)
     return (dict(row) for row in DictReader(open(filename, 'r')))
+
+
+def stream_cars_repeat(num):
+    stream = cycle(stream_cars())
+    for i in range(num):
+        yield next(stream)
 
 
 def load_cars_table(dbase):

@@ -17,30 +17,13 @@ def db_is_open(db):
     return True
 
 
-def get_database(database_file):
-    global database_global
-
-    if database_file in database_global:
-        logger.info('DB found in global')
-        db = database_global[database_file]
-
-        if db_is_open(db):
-            return db
-        else:
-            logger.info('Database is closed, reopening')
-
-    logger.info('Getting new database connection')
-
-    db = get_db(database_file)
-    database_global[database_file] = db
-
-    return db
-
-
 class DBase:
-    def __init__(self, db_file):
+    def __init__(self, db_file, isolation_level="DEFERRED", journal_mode="OFF"):
         self.db_file = db_file
-        self.db = get_db(self.db_file)
+        self.db = get_db(filename=db_file,
+                         isolation_level=isolation_level,
+                         journal_mode=journal_mode)
+
         self.db.row_factory = sqlite3.Row
         self.last_sql = None
 
@@ -54,7 +37,6 @@ class DBase:
             logger.info(sql)
             logger.info(vals.__repr__())
 
-        print(sql)
         cur = self.db.execute(sql, vals)
         if count_table_rows:
             # Just return a number
@@ -92,4 +74,4 @@ class DBase:
 
     def create_and_load_table(self, stream, structure):
         table = get_table(self.db, structure)
-        table.load_table(stream)
+        table.load_table(stream, block=True)

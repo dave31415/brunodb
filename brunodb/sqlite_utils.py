@@ -1,11 +1,25 @@
 import sqlite3
 
 
-def get_db(file=None):
-    if file:
-        db = sqlite3.connect(file, timeout=30.0, check_same_thread=False,
-                             isolation_level=None)
-        db.execute('pragma journal_mode=wal;')
+def get_db(filename=None, isolation_level="DEFERRED", journal_mode='OFF'):
+    isolation_levels = [None, "DEFERRED", "IMMEDIATE", "EXCLUSIVE"]
+    journal_modes = ['DELETE', 'TRUNCATE', 'PERSIST', 'MEMORY', 'WAL', 'OFF']
+
+    if isolation_level is not None:
+        isolation_level = isolation_level.upper()
+
+    assert isolation_level in isolation_levels
+
+    journal_mode = journal_mode.upper()
+    assert journal_mode in journal_modes
+
+    if filename:
+        db = sqlite3.connect(filename,
+                             timeout=30.0,
+                             check_same_thread=False,
+                             isolation_level=isolation_level)
+
+        db.execute('pragma journal_mode=%s;' % journal_mode)
     else:
         # in memory only
         db = sqlite3.connect(":memory:", timeout=30.0, check_same_thread=False)
