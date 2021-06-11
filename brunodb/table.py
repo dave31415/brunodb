@@ -98,7 +98,7 @@ class Table(object):
             yield values_list
 
     def load_table(self, stream, max_rows=1000000000000,
-                   create=True, block=True):
+                   create=True, block=False):
 
         if create or self.table not in get_tables(self.db):
             self.create_table()
