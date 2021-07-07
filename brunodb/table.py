@@ -2,11 +2,13 @@ import logging
 from time import time
 from brunodb.sqlite_utils import drop_table, drop_index, schema_to_schema_string
 from brunodb.sqlite_utils import get_tables
+from brunodb.graceful_stop import stop_gracefully, graceful_exit
 
 logger = logging.getLogger(__name__)
 
 
 class Table(object):
+    @graceful_exit
     def __init__(self, db, table_name, schema, index_fields):
         self.db = db
         self.table = table_name
@@ -62,10 +64,11 @@ class Table(object):
         format_vals = '(' + questions + ')'
         sql = "INSERT INTO {table} VALUES {format_vals}".format(table=self.table,
                                                                 format_vals=format_vals)
-        log_every = 1000
-        commit_every = 1000
+        log_every = 10000
+        commit_every = 10000
         last_time = time()
         for row_num, values in enumerate(values_list):
+            stop_gracefully(self.db)
             if row_num % log_every == 0 and row_num > 0:
                 this_time = time()
 

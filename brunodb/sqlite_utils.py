@@ -99,7 +99,7 @@ def query_sql(table,
               **kwargs):
 
     assert join_type.upper() in ['', 'INNER', 'LEFT', 'LEFT OUTER']
-    # SQLite supports INNER joins (default) and
+    # SQLite supports INNER joins (default) LEFT and
     # LEFT OUTER JOINs
 
     comparators = {'eq': '=',

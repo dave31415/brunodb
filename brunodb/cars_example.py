@@ -28,7 +28,7 @@ def stream_cars_repeat(num):
         yield next(stream)
 
 
-def load_cars_table(dbase):
+def load_cars_table(dbase, block=False):
     stream = stream_cars()
     structure = get_cars_structure()
-    dbase.create_and_load_table(stream, structure)
+    dbase.create_and_load_table(stream, structure, block=block)

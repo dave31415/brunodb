@@ -1,5 +1,6 @@
 from tempfile import NamedTemporaryFile
 from time import time
+from csv import DictReader, DictWriter
 from brunodb.cars_example import stream_cars_repeat, get_cars_structure
 from brunodb import DBase
 
@@ -57,7 +58,37 @@ def load_test(num=10000, memory=False, isolation_level='DEFERRED', journal_mode=
         print_timing(label, start, num)
 
 
+def file_test(num=10000):
+    start = time()
+    filename = NamedTemporaryFile().name
+    stream = stream_cars_repeat(num)
+    row = next(stream)
+    fieldnames = list(row.keys())
+    fp = open(filename, 'w')
+    wr = DictWriter(fp, fieldnames=fieldnames)
+    wr.writeheader()
+    wr.writerow(row)
+    wr.writerows(stream)
+    fp.close()
+    print_timing('FILE IO WRITE', start, num)
+
+    fp = open(filename, 'r')
+    wr = DictReader(fp)
+    for _ in wr:
+        pass
+
+    fp.close()
+    print_timing('FILE IO READ', start, num)
+
+
+def load_test_one(num=1000000, read_test=False):
+    load_test(num=num, read_test=read_test)
+
+
 def load_test_all(num=1000000):
+    file_test(num)
+    file_test(num)
+    return
     print("Write tests")
     print('--------------------------')
     load_test(num=num)
