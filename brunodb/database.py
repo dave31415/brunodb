@@ -79,3 +79,6 @@ class DBase:
 
     def close(self):
         self.db.close()
+
+    def is_open(self):
+        return db_is_open(self.db)

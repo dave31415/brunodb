@@ -94,7 +94,7 @@ def test_order_by_sql_mult_desc():
     assert order_by_sql == 'order by foo, bar desc'
 
 
-def test_query_sql_1():
+def test_query_sql():
     table_name = 'foo'
     sql, vals = get_query_sql(table_name)
 
@@ -102,7 +102,7 @@ def test_query_sql_1():
     assert vals == ()
 
 
-def test_query_sql_2():
+def test_query_sql_complex():
     table_name = 'foo'
     fields = ['bar', 'buzz']
     kwargs = {'jug': 19,
