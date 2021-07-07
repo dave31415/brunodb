@@ -122,3 +122,24 @@ def test_query_sql_complex():
 
     assert sql == expected
     assert vals == (19, 'ant')
+
+
+def test_query_sql_complex():
+    table_name = 'foo'
+    fields = ['bar', 'buzz']
+    kwargs = {'jug': 19,
+              'bug': 'ant'}
+
+    where_extra = 'hug <= 77'
+    order_by = ('-buzz',)
+    query_sql, vals = get_query_sql(table_name,
+                                    where_extra=where_extra,
+                                    count_table_rows=True,
+                                    order_by=order_by,
+                                    **kwargs)
+
+    sql = standardize(query_sql)
+    expected = "select count(*) from foo where jug = (?) and bug = (?) and hug <= 77 order by buzz desc"
+
+    assert sql == expected
+    assert vals == (19, 'ant')

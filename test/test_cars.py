@@ -13,7 +13,7 @@ def test_cars():
     load_cars_table(dbase)
 
     # Check that there is now a table called cars
-    assert 'cars' in dbase.tables
+    assert dbase.tables == ['cars']
 
     # Use use the simple query API and read all records
     # equivalent to "select * from cars"
