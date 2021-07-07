@@ -1,7 +1,8 @@
 import sqlite3
 import logging
 from brunodb.sqlite_utils import get_db, drop_table, get_tables
-from brunodb.sqlite_utils import query_sql, list_tables
+from brunodb.sqlite_utils import list_tables
+from brunodb.query import get_query_sql
 from brunodb.table import get_table
 
 logger = logging.getLogger(__file__)
@@ -30,7 +31,7 @@ class DBase:
         logger.info('Tables: %s' % self.tables.__repr__())
 
     def query(self, table, count_table_rows=False, **kwargs):
-        sql, vals = query_sql(table, count_table_rows=count_table_rows, **kwargs)
+        sql, vals = get_query_sql(table, count_table_rows=count_table_rows, **kwargs)
         show_sql = False
         if show_sql:
             self.last_sql = sql

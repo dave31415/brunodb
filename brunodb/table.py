@@ -102,8 +102,8 @@ class Table(object):
 
     def load_table(self, stream, max_rows=1000000000000,
                    create=True, block=False):
-
-        if create or self.table not in get_tables(self.db):
+        tables = get_tables(self.db)
+        if create or self.table not in tables:
             self.create_table()
 
         values_list = self._stream_values(stream, max_rows)
