@@ -1,40 +1,21 @@
-import sqlite3
 import logging
-from brunodb.sqlite_utils import get_db, drop_table, get_tables
-from brunodb.sqlite_utils import list_tables
+from brunodb.sqlite_utils import drop_table
 from brunodb.query import get_query_sql
 from brunodb.table import get_table
 
 logger = logging.getLogger(__file__)
-database_global = {}
 
 
-def db_is_open(db):
-    try:
-        list_tables(db)
-    except sqlite3.ProgrammingError:
-        return False
-
-    return True
-
-
-class DBase:
-    def __init__(self, db_file, isolation_level="DEFERRED", journal_mode="OFF"):
-        self.db_file = db_file
-        self.db = get_db(filename=db_file,
-                         isolation_level=isolation_level,
-                         journal_mode=journal_mode)
-
-        self.db.row_factory = sqlite3.Row
-        self.last_sql = None
-
-        logger.info('Tables: %s' % self.tables.__repr__())
+class DBaseGeneric:
+    def __init__(self):
+        self.place_holder = "?"
+        self.db = None
 
     def query(self, table, count_table_rows=False, **kwargs):
-        sql, vals = get_query_sql(table, count_table_rows=count_table_rows, **kwargs)
+        sql, vals = get_query_sql(table, count_table_rows=count_table_rows, place_holder=self.place_holder,
+                                  **kwargs)
         show_sql = False
         if show_sql:
-            self.last_sql = sql
             logger.info(sql)
             logger.info(vals.__repr__())
 
@@ -58,14 +39,7 @@ class DBase:
 
     @property
     def tables(self):
-        return get_tables(self.db)
-
-    def lookup(self, table, key_name, key_match, value_name):
-        kwargs = {key_name: key_match}
-        result = list(self.query(table=table, fields=[key_name, value_name],
-                                 order_by=key_name, **kwargs))
-        for row in result:
-            yield row[value_name]
+        return self.db.get_tables()
 
     def drop(self, table):
         logger.info('dropping table: %s' % table)
@@ -81,4 +55,4 @@ class DBase:
         self.db.close()
 
     def is_open(self):
-        return db_is_open(self.db)
+       pass

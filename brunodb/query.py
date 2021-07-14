@@ -17,7 +17,8 @@ def get_base_query(table_name,
     return sql
 
 
-def get_where_clause(kwargs, where_extra=''):
+def get_where_clause(kwargs, where_extra='', place_holder='?'):
+
     if not kwargs and not where_extra:
         return '', []
 
@@ -27,7 +28,7 @@ def get_where_clause(kwargs, where_extra=''):
     where_sql = ''
 
     for key, value in kwargs.items():
-        where.append('%s = (?)' % key)
+        where.append('%s = (%s)' % (key, place_holder))
         where_vals.append(value)
 
     if len(where) > 0 or where_extra:
@@ -77,6 +78,7 @@ def get_query_sql(table_name,
                   where_extra=None,
                   count_table_rows=False,
                   order_by=None,
+                  place_holder='?',
                   **kwargs):
 
     base_sql = get_base_query(table_name,
@@ -86,7 +88,7 @@ def get_query_sql(table_name,
     sql = base_sql
     vals = []
 
-    where_sql, where_vals = get_where_clause(kwargs, where_extra=where_extra)
+    where_sql, where_vals = get_where_clause(kwargs, where_extra=where_extra, place_holder=place_holder)
     sql = ("%s %s" % (sql, where_sql)).strip()
     vals += where_vals
 

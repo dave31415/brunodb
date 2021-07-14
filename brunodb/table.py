@@ -1,7 +1,6 @@
 import logging
 from time import time
 from brunodb.sqlite_utils import drop_table, drop_index, schema_to_schema_string
-from brunodb.sqlite_utils import get_tables
 from brunodb.graceful_stop import stop_gracefully, graceful_exit
 
 logger = logging.getLogger(__name__)
@@ -16,6 +15,9 @@ class Table(object):
         self.schema = schema
         self.fields = list(self.schema.keys())
         self.n_fields = len(self.schema)
+        self.place_holder = '?'
+        if db.db_type == 'postgres':
+            self.place_holder = '%s'
 
     def create_table(self):
         logger.info('Creating table (and indices): %s' % self.table)
@@ -23,36 +25,31 @@ class Table(object):
 
         schema_string = schema_to_schema_string(self.schema)
 
+        # TODO: check SQL injection
         sql = "CREATE TABLE {table} ( {schema_string} )".format(table=self.table,
                                                                 schema_string=schema_string)
-        with self.db:
-            self.db.execute(sql)
+
+        self.db.executescript(sql)
 
         for index_field in self.index_fields:
-            with self.db:
-                self.create_index(index_field)
-
-        # Just to safe, probably not needed
-        self.db.commit()
+            self.create_index(index_field)
 
     def create_index(self, index_field):
-        with self.db:
-            index_name = "index_{table}_{index_field}".format(table=self.table,
-                                                              index_field=index_field)
-            drop_index(self.db, index_name)
-            sql_template = "CREATE INDEX {index_name} ON {table} ({index_field})"
-            sql = sql_template.format(table=self.table,
-                                      index_name=index_name,
-                                      index_field=index_field)
-            self.db.execute(sql)
+        index_name = "index_{table}_{index_field}".format(table=self.table,
+                                                          index_field=index_field)
+        drop_index(self.db, index_name)
+        sql_template = "CREATE INDEX {index_name} ON {table} ({index_field})"
+        sql = sql_template.format(table=self.table,
+                                  index_name=index_name,
+                                  index_field=index_field)
+        self.db.executescript(sql)
 
     def _insert_many(self, values_list):
-        questions = ','.join(['?' for _ in range(self.n_fields)])
+        questions = ','.join([self.place_holder for _ in range(self.n_fields)])
         format_vals = '(' + questions + ')'
         sql = "INSERT INTO {table} VALUES {format_vals}".format(table=self.table,
                                                                 format_vals=format_vals)
-        with self.db:
-            self.db.executemany(sql, values_list)
+        self.db.executemany(sql, values_list)
 
     def _insert_many_non_block(self, values_list):
         # If there are multiple processes writing from streams
@@ -60,7 +57,7 @@ class Table(object):
         # Do one at a time. But slower.
         start = time()
 
-        questions = ','.join(['?' for _ in range(self.n_fields)])
+        questions = ','.join([self.place_holder for _ in range(self.n_fields)])
         format_vals = '(' + questions + ')'
         sql = "INSERT INTO {table} VALUES {format_vals}".format(table=self.table,
                                                                 format_vals=format_vals)
@@ -82,7 +79,12 @@ class Table(object):
                 logger.info(message % vals)
                 last_time = this_time
 
-            self.db.execute(sql, values)
+            if self.db.db_type == 'postgres':
+                self.db.executescript(sql, values=values)
+            elif self.db.db_type == 'sqlite':
+                self.db.execute(sql, values=values)
+            else:
+                raise ValueError("Unknown, db_type: %s" % self.db.db_type)
 
             if row_num % commit_every == 0:
                 self.db.commit()
@@ -102,7 +104,9 @@ class Table(object):
 
     def load_table(self, stream, max_rows=1000000000000,
                    create=True, block=False):
-        tables = get_tables(self.db)
+
+        tables = self.db.get_tables()
+
         if create or self.table not in tables:
             self.create_table()
 

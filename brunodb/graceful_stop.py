@@ -1,7 +1,7 @@
 import os
 import sys
-from sqlite3 import Connection
-
+from brunodb.postgres_utils import PostgresDB
+from brunodb.sqlite_utils import SQLiteDB
 
 STOP_FILE = os.getenv('BRUNODB_STOP_FILE', 'BRUNODB_STOP_FILE')
 
@@ -35,6 +35,12 @@ def stop_gracefully(db, no_exit=False):
     sys.exit()
 
 
+def is_db_object(obj):
+    if isinstance(obj, PostgresDB) or isinstance(obj, SQLiteDB):
+        return True
+    return False
+
+
 def graceful_exit(func):
     """
     To be used as a decorator. Will find the database variable and close it.
@@ -44,8 +50,8 @@ def graceful_exit(func):
     """
 
     def wrapper(*args, **kwargs):
-        db_args = [arg for arg in args if isinstance(arg, Connection)]
-        kw_db_args = [val for val in kwargs.values() if isinstance(val, Connection)]
+        db_args = [arg for arg in args if is_db_object(arg)]
+        kw_db_args = [val for val in kwargs.values() if is_db_object(val)]
         db = db_args + kw_db_args
         if len(db) == 0:
             raise ValueError('No database variable to close database')

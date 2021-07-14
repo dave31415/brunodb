@@ -1,18 +1,15 @@
-from tempfile import NamedTemporaryFile
-from brunodb import DBase
+from brunodb.database_postgres import DBasePostgres
 from brunodb.cars_example import load_cars_table
 
 
-def run_cars(block):
-    # get a tempfile and load the database using that file as the db file
-    filename = NamedTemporaryFile().name
-    print('Database filename: %s' % filename)
-    dbase = DBase(filename)
+def run_cars_postgres(block):
+    dbase = DBasePostgres()
 
     # load the cars table, see cars_example file for how this is done
     load_cars_table(dbase, block=block)
 
     # Check that there is now a table called cars
+
     assert dbase.tables == ['cars']
 
     # Use use the simple query API and read all records
@@ -47,9 +44,9 @@ def run_cars(block):
     assert result == 7
 
 
-def test_cars_block():
-    run_cars(True)
+def test_cars_postgres_block():
+    run_cars_postgres(True)
 
 
-def test_cars_non_block():
-    run_cars(False)
+def test_cars_postgres_non_block():
+    run_cars_postgres(False)

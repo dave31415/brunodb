@@ -1,7 +1,7 @@
 import sqlite3
 
 
-def get_db(filename=None, isolation_level="DEFERRED", journal_mode='OFF'):
+def get_sqlite_db(filename=None, isolation_level="DEFERRED", journal_mode='OFF'):
     isolation_levels = [None, "DEFERRED", "IMMEDIATE", "EXCLUSIVE"]
     journal_modes = ['DELETE', 'TRUNCATE', 'PERSIST', 'MEMORY', 'WAL', 'OFF']
 
@@ -61,8 +61,46 @@ def schema_to_schema_string(schema):
 
 
 def list_tables(db):
-    return db.execute("select name from sqlite_master where type = 'table'").fetchall()
+    return list(db.execute("select name from sqlite_master where type = 'table'"))
 
 
 def get_tables(db):
-    return [i[0] for i in list_tables(db)]
+    return [i['name'] for i in list_tables(db)]
+
+
+class SQLiteDB:
+    def __init__(self, filename=None, isolation_level="DEFERRED", journal_mode='OFF'):
+        self.db_type = 'sqlite'
+        self.db = get_sqlite_db(filename=filename, isolation_level=isolation_level, journal_mode=journal_mode)
+        self.db.row_factory = sqlite3.Row
+
+    def execute(self, sql, values=None):
+        if values is None:
+            return (dict(row) for row in self.db.execute(sql))
+        else:
+            return (dict(row) for row in self.db.execute(sql, values))
+
+    def executescript(self, sql):
+        self.db.executescript(sql)
+
+    def executemany(self, sql, values):
+        return (dict(row) for row in self.db.executemany(sql, values))
+
+    def close(self):
+        self.db.close()
+
+    def commit(self):
+        self.db.commit()
+
+    def get_tables(self):
+        return get_tables(self.db)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.commit()
+
+
+def get_db(filename=None, isolation_level="DEFERRED", journal_mode='OFF'):
+    return SQLiteDB(filename=filename, isolation_level=isolation_level, journal_mode=journal_mode)
