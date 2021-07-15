@@ -1,4 +1,4 @@
-# following this
+# following this guide to publishing
 # https://medium.com/@thucnc/how-to-publish-your-own-python-package-to-pypi-4318868210f9
 
 from setuptools import setup, find_packages
@@ -25,11 +25,11 @@ setup_args = dict(
 )
 
 install_requires = [
-    'pytest'
+    'pytest',
+    'psycopg2-binary'
 ]
 
 if __name__ == '__main__':
     setup(include_package_data=True,
-	  **setup_args, 
-	  install_requires=install_requires)
-
+          **setup_args,
+          install_requires=install_requires)
