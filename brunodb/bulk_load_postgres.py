@@ -5,6 +5,9 @@ import subprocess
 from brunodb import DBase
 from brunodb.cars_example import get_cars_structure
 
+# Must install dbcrossbar bulk loader first
+# http://www.dbcrossbar.org
+
 
 def dump_stream(stream, filename=None):
     if filename is None:
