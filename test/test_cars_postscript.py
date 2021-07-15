@@ -4,6 +4,7 @@ from brunodb.cars_example import load_cars_table
 
 def run_cars_postgres(block):
     dbase = DBasePostgres()
+    assert dbase.is_open()
 
     # load the cars table, see cars_example file for how this is done
     load_cars_table(dbase, block=block)
@@ -42,6 +43,9 @@ def run_cars_postgres(block):
     sql = 'select count(*) as number from cars where cylinders = 6.0'
     result = list(dbase.raw_sql_query(sql))[0]['number']
     assert result == 7
+
+    dbase.close()
+    assert not dbase.is_open()
 
 
 def test_cars_postgres_block():

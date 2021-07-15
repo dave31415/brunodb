@@ -8,6 +8,7 @@ def run_cars(block):
     filename = NamedTemporaryFile().name
     print('Database filename: %s' % filename)
     dbase = DBase(filename)
+    assert dbase.is_open()
 
     # load the cars table, see cars_example file for how this is done
     load_cars_table(dbase, block=block)
@@ -46,6 +47,9 @@ def run_cars(block):
     result = list(dbase.raw_sql_query(sql))[0]['number']
     assert result == 7
 
+    dbase.close()
+    assert not dbase.is_open()
+
 
 def test_cars_block():
     run_cars(True)
@@ -53,3 +57,37 @@ def test_cars_block():
 
 def test_cars_non_block():
     run_cars(False)
+
+
+def test_cars_queries():
+    # get a tempfile and load the database using that file as the db file
+    filename = NamedTemporaryFile().name
+    print('Database filename: %s' % filename)
+    dbase = DBase(filename)
+
+    load_cars_table(dbase)
+    assert dbase.tables == ['cars']
+    cars = list(dbase.query('cars'))
+    n_cars = len(cars)
+    assert n_cars == 32
+
+    cars = list(dbase.query('cars', cylinders=6.0))
+    n_cars = len(cars)
+    assert n_cars == 7
+
+    # use the raw sql API to run the same query, keeping only the
+    # 'name' field
+    sql = 'select name from cars where cylinders = 6.0'
+    cars = dbase.raw_sql_query(sql)
+    car_names = [car['name'] for car in cars]
+    assert len(car_names) == 7
+
+    expected = ['Mazda RX4', 'Mazda RX4 Wag', 'Hornet 4 Drive',
+                'Valiant', 'Merc 280', 'Merc 280C', 'Ferrari Dino']
+
+    assert car_names == expected
+
+    # run another SQL query
+    sql = 'select count(*) as number from cars where cylinders = 6.0'
+    result = list(dbase.raw_sql_query(sql))[0]['number']
+    assert result == 7

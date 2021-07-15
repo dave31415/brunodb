@@ -9,9 +9,10 @@ database_global = {}
 def db_is_open(connection):
     try:
         cur = connection.cursor()
-        cur.execute('SELECT 1')
-    except psycopg2.OperationalError:
-        pass
+        cur.close()
+        return True
+    except psycopg2.InterfaceError:
+        return False
 
 
 class DBasePostgres(DBaseGeneric):

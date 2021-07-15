@@ -1,7 +1,6 @@
 import sqlite3
 import logging
 from brunodb.sqlite_utils import get_db
-from brunodb.sqlite_utils import list_tables
 from brunodb.database_generic import DBaseGeneric
 
 logger = logging.getLogger(__file__)
@@ -9,7 +8,7 @@ logger = logging.getLogger(__file__)
 
 def db_is_open(db):
     try:
-        list_tables(db)
+        db.execute('SELECT 1')
     except sqlite3.ProgrammingError:
         return False
 
