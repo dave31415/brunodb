@@ -2,7 +2,7 @@ from tempfile import NamedTemporaryFile
 from time import time
 from csv import DictReader, DictWriter
 from brunodb.cars_example import stream_cars_repeat, get_cars_structure
-from brunodb import DBaseSqlite
+from brunodb.database_sqlite import DBaseSqlite
 
 
 bytes_per_line = 31.3

@@ -1,7 +1,13 @@
 from tempfile import NamedTemporaryFile
 from brunodb.database_sqlite import DBaseSqlite
-from brunodb.database_postgres import DBasePostgres
 from brunodb.cars_example import load_cars_table
+
+try:
+    from brunodb.database_postgres import DBasePostgres
+except ImportError:
+    class DBasePostgres:
+        pass
+    pass
 
 
 def run_cars(db_type, block=False, no_close=False):

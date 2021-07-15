@@ -1,2 +1,2 @@
-from brunodb.database_sqlite import DBaseSqlite
-version = '0.1.3'
+from brunodb.database import DBase
+version = '0.2.0'

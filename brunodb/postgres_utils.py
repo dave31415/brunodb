@@ -23,7 +23,11 @@ def get_connection_string(dbname='postgres', user='postgres', password=None,
     :return: open connection with an cursor().execute(sql) method
     """
     if password is None:
-        password = os.getenv('POSTGRES_PWD', '')
+        password = os.getenv('POSTGRES_PWD')
+
+    if password is None:
+        raise ValueError('Password must either by supplied on the function call or placed in'
+                         ' environment variable POSTGRES_PWD')
 
     connection_string = f'dbname={dbname} user={user} password={password} port={port} host={host}'
 
@@ -31,15 +35,22 @@ def get_connection_string(dbname='postgres', user='postgres', password=None,
 
 
 def open_connection(dbname='postgres', user='postgres', password=None,
-                    port=5432, host='127.0.0.1'):
+                    port=5432, host='127.0.0.1', db_type=None):
     """
+    Open a connection to Postgres. All options have a default except password.
+        password can either be supplied or stored in POSTGRES_PWD environment variable.
+        Don't hard code it into code or at least in a production setting.
     :param dbname: database name, default 'postgres'
     :param user: username, default 'postgres'
-    :param password: password, defaults to environment var POSTGRES_PWD and then empty string
+    :param password: password, defaults to environment var POSTGRES_PWD
+        raises error if not passed here or found there
     :param port: port number, default 5432
     :param host: host, default 127.0.0.1
+    :param db_type: not used here but allows for passing **config
+        rather than having to remove it
     :return: open connection with an cursor().execute(sql) method
     """
+    assert db_type is None or db_type == 'postgres'
     connection_string = get_connection_string(dbname=dbname, user=user, password=password,
                                               port=port, host=host)
 

@@ -1,7 +1,13 @@
 import os
 import sys
-from brunodb.postgres_utils import PostgresDB
 from brunodb.sqlite_utils import SQLiteDB
+
+try:
+    from brunodb.postgres_utils import PostgresDB
+except ImportError:
+    class PostgresDB:
+        pass
+    pass
 
 STOP_FILE = os.getenv('BRUNODB_STOP_FILE', 'BRUNODB_STOP_FILE')
 

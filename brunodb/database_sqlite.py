@@ -16,7 +16,12 @@ def db_is_open(db):
 
 
 class DBaseSqlite(DBaseGeneric):
-    def __init__(self, db_file, isolation_level="DEFERRED", journal_mode="OFF"):
+    def __init__(self, db_file, isolation_level=None, journal_mode=None):
+        if isolation_level is None:
+            isolation_level = "DEFERRED"
+        if journal_mode is None:
+            journal_mode = "OFF"
+
         super().__init__()
         self.db_file = db_file
         self.db = get_db(filename=db_file,
