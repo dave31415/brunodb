@@ -22,6 +22,8 @@ def run_cars(db_type, block=False, no_close=False):
     else:
         raise ValueError('Unknown db_type: %s' % db_type)
 
+    dbase.drop('cars')
+
     # load the cars table, see cars_example file for how this is done
     load_cars_table(dbase, block=block)
 
@@ -60,6 +62,7 @@ def run_cars(db_type, block=False, no_close=False):
     assert result == 7
 
     if not no_close:
+        dbase.drop('cars')
         dbase.close()
         assert not dbase.is_open()
     else:

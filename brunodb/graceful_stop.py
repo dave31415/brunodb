@@ -16,7 +16,8 @@ def stop_gracefully(db, no_exit=False):
     """
     A mechanism to stop the python process that is reading/writing to brunodb and
     shutdown gracefully, i.e. close the database first. Better than a hard stop
-    which might corrupt the database.
+    which might corrupt the database. Particularly for when running a load
+    with block=False.
     :param db: the database object
     :param no_exit: Default False, if True, won't exit Python and
         instead will just return the stop Boolean so the program can handle the
