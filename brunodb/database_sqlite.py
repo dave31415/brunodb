@@ -15,7 +15,7 @@ def db_is_open(db):
     return True
 
 
-class DBase(DBaseGeneric):
+class DBaseSqlite(DBaseGeneric):
     def __init__(self, db_file, isolation_level="DEFERRED", journal_mode="OFF"):
         super().__init__()
         self.db_file = db_file

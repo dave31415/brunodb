@@ -1,6 +1,6 @@
 from tempfile import NamedTemporaryFile
 from brunodb.sqlite_utils import get_db, SQLiteDB
-from brunodb.database_sqlite import db_is_open, DBase
+from brunodb.database_sqlite import db_is_open, DBaseSqlite
 
 
 def test_db_is_open():
@@ -12,8 +12,8 @@ def test_db_is_open():
 
 
 def test_dbase():
-    dbase = DBase(None)
-    assert isinstance(dbase, DBase)
+    dbase = DBaseSqlite(None)
+    assert isinstance(dbase, DBaseSqlite)
     assert dbase.db_file is None
     dbase.close()
     assert not dbase.is_open()
@@ -21,8 +21,8 @@ def test_dbase():
 
 def test_dbase_file():
     filename = NamedTemporaryFile().name
-    dbase = DBase(filename)
-    assert isinstance(dbase, DBase)
+    dbase = DBaseSqlite(filename)
+    assert isinstance(dbase, DBaseSqlite)
     assert dbase.db_file == filename
     dbase.close()
     assert not dbase.is_open()

@@ -2,7 +2,7 @@ from tempfile import NamedTemporaryFile
 from time import time
 from csv import DictReader, DictWriter
 from brunodb.cars_example import stream_cars_repeat, get_cars_structure
-from brunodb import DBase
+from brunodb import DBaseSqlite
 
 
 bytes_per_line = 31.3
@@ -36,9 +36,9 @@ def load_test(num=10000, memory=False, isolation_level='DEFERRED', journal_mode=
     if memory:
         filename = None
 
-    dbase = DBase(filename,
-                  isolation_level=isolation_level,
-                  journal_mode=journal_mode)
+    dbase = DBaseSqlite(filename,
+                        isolation_level=isolation_level,
+                        journal_mode=journal_mode)
 
     dbase.drop('cars')
     structure = get_cars_structure()
