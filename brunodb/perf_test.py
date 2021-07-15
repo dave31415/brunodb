@@ -2,7 +2,7 @@ from tempfile import NamedTemporaryFile
 from time import time
 from csv import DictReader, DictWriter
 from brunodb.cars_example import stream_cars_repeat, get_cars_structure
-from brunodb.database_sqlite import DBaseSqlite
+from brunodb import DBase
 
 
 bytes_per_line = 31.3
@@ -23,28 +23,43 @@ def print_timing(label, start, n_rows):
 
     label = label.ljust(40)
     runtime = ("%0.3f" % runtime).rjust(4)
-    rate = '{:,}'.format(int(rate)).rjust(10)
+    rate_string = '{:,}'.format(int(rate)).rjust(10)
     rate_mbytes_per_sec = ("%0.3f" % rate_mbytes_per_sec).rjust(6)
 
-    info = (label, n_rows, runtime, rate, rate_mbytes_per_sec)
+    info = (label, n_rows, runtime, rate_string, rate_mbytes_per_sec)
     print("%s: runtime: n_rows: %s, %s seconds, rate: %s rows/sec, rate: %s MB/sec" % info)
+    return rate
 
 
-def load_test(num=10000, memory=False, isolation_level='DEFERRED', journal_mode='OFF', read_test=False):
+def load_test(num=10000, memory=False, isolation_level='DEFERRED', journal_mode='OFF',
+              read_test=False, db_type='sqlite', block=False, no_indices=False):
     stream = stream_cars_repeat(num)
-    filename = NamedTemporaryFile().name
-    if memory:
-        filename = None
 
-    dbase = DBaseSqlite(filename,
-                        isolation_level=isolation_level,
-                        journal_mode=journal_mode)
+    if db_type == 'sqlite':
+        if memory:
+            filename = None
+        else:
+            filename = NamedTemporaryFile().name
+
+        config = {'db_type': db_type,
+                  'filename': filename,
+                  'isolation_level': isolation_level,
+                  'journal_mode': journal_mode}
+
+        dbase = DBase(config)
+    elif db_type == 'postgres':
+        config = {'db_type': db_type}
+        dbase = DBase(config)
+    else:
+        raise ValueError('Unknown db_type: %s' % db_type)
 
     dbase.drop('cars')
     structure = get_cars_structure()
+    if no_indices:
+        structure['indices'] = []
 
     if read_test:
-        dbase.create_and_load_table(stream, structure)
+        dbase.create_and_load_table(stream, structure, block=block)
 
         start = time()
         _ = list(dbase.query('cars'))
@@ -54,8 +69,10 @@ def load_test(num=10000, memory=False, isolation_level='DEFERRED', journal_mode=
         start = time()
         dbase.create_and_load_table(stream, structure)
 
-        label = 'Mem: %s, Iso: %s, JM: %s' % (memory, isolation_level, journal_mode)
+        print('------------------------------------')
+        label = '%s Block: %s, Mem: %s, Iso: %s, JM: %s' % (db_type, block, memory, isolation_level, journal_mode)
         print_timing(label, start, num)
+        print(config)
 
 
 def file_test(num=10000):
@@ -81,14 +98,13 @@ def file_test(num=10000):
     print_timing('FILE IO READ', start, num)
 
 
-def load_test_one(num=1000000, read_test=False):
-    load_test(num=num, read_test=read_test)
+def load_test_one(num=100000, read_test=False, **kwargs):
+    load_test(num=num, read_test=read_test, **kwargs)
 
 
-def load_test_all(num=1000000):
+def load_test_all(num=100000):
     file_test(num)
     file_test(num)
-    return
     print("Write tests")
     print('--------------------------')
     load_test(num=num)

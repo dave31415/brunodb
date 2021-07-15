@@ -33,6 +33,12 @@ def drop_table(db, table_name):
     db.commit()
 
 
+def truncate_table(db, table_name):
+    sql = "TRUNCATE TABLE %s" % table_name
+    db.executescript(sql)
+    db.commit()
+
+
 def drop_index(db, index_name):
     sql = "DROP INDEX IF EXISTS %s" % index_name
     db.executescript(sql)

@@ -1,5 +1,5 @@
 import logging
-from brunodb.sqlite_utils import drop_table
+from brunodb.sqlite_utils import drop_table, truncate_table
 from brunodb.query import get_query_sql
 from brunodb.table import get_table
 
@@ -47,8 +47,20 @@ class DBaseGeneric:
         assert table not in self.tables
         logger.info('table: %s dropped' % table)
 
+    def truncate(self, table):
+        logger.info('truncating table: %s' % table)
+        if table not in self.tables:
+            logger.info('No table: %s' % table)
+            return
+
+        truncate_table(self.db, table)
+        logger.info('table: %s truncated' % table)
+
+    def create_table(self, structure):
+        return get_table(self.db, structure)
+
     def create_and_load_table(self, stream, structure, block=False):
-        table = get_table(self.db, structure)
+        table = self.create_table(structure)
         table.load_table(stream, block=block)
 
     def close(self):
