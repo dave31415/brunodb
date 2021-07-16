@@ -66,9 +66,13 @@ def bulk_load_stream(db, stream, structure, filename=None, password=None):
     print('%0.5f seconds in file dump' % dump_time)
 
 
-def bulk_load_cars(dbase):
+def get_cars_file_name():
     path = os.path.dirname(__file__) + '/..'
     path = os.path.realpath(path)
-    filename = '%s/example_data/cars.csv' % path
+    return '%s/example_data/cars.csv' % path
+
+
+def bulk_load_cars(dbase):
+    filename = get_cars_file_name()
     structure = get_cars_structure()
     bulk_load_file(dbase.db, filename, structure)

@@ -1,8 +1,9 @@
 import logging
+from csv import DictReader
 from brunodb.sqlite_utils import drop_table, truncate_table
 from brunodb.query import get_query_sql
 from brunodb.table import get_table
-from brunodb.bulk_load_postgres import bulk_load_stream
+from brunodb.bulk_load_postgres import bulk_load_stream, bulk_load_file
 logger = logging.getLogger(__file__)
 
 
@@ -67,8 +68,16 @@ class DBaseGeneric:
             table = self.create_table(structure)
             table.load_table(stream, block=block)
 
+    def create_and_load_table_from_csv(self, filename, structure, block=False, bulk_load=False):
+        if bulk_load and self.db_type == 'postgres':
+            bulk_load_file(self.db, filename, structure)
+        else:
+            table = self.create_table(structure)
+            stream = DictReader(open(filename, 'r'))
+            table.load_table(stream, block=block)
+
     def close(self):
         self.db.close()
 
     def is_open(self):
-       pass
+        pass
