@@ -2,8 +2,9 @@ from tempfile import NamedTemporaryFile
 from csv import DictWriter
 import os
 import subprocess
-from brunodb import DBase
 from brunodb.cars_example import get_cars_structure
+from brunodb.table import get_table
+from time import time
 
 # Must install dbcrossbar bulk loader first
 # http://www.dbcrossbar.org
@@ -11,7 +12,7 @@ from brunodb.cars_example import get_cars_structure
 
 def dump_stream(stream, filename=None):
     if filename is None:
-        filename = NamedTemporaryFile().name
+        filename = NamedTemporaryFile().name+'.csv'
 
     print('Writing data to file: %s' % filename)
     fp = open(filename, 'w')
@@ -22,7 +23,7 @@ def dump_stream(stream, filename=None):
     writer.writerow(first)
     writer.writerows(stream)
     fp.close()
-    print('Finish wriite file')
+    print('Finish writing file')
     return filename
 
 
@@ -36,34 +37,27 @@ def get_connection_string(table_name, password=None):
                                     password=password)
 
 
-def bulk_load_file(filename, table_name, password=None):
-    connection_string = get_connection_string(table_name, password=password)
-
+def bulk_load_file(db, filename, structure, password=None):
+    _ = get_table(db, structure)
+    connection_string = get_connection_string(structure['table_name'], password=password)
     commands = ['dbcrossbar', 'cp', '--if-exists=overwrite',
                 'csv:%s' % filename, connection_string]
-    # print(' '.join(commands))
-
     subprocess.run(commands)
 
 
-def bulk_load_stream(stream, table_name, filename=None, password=None):
+def bulk_load_stream(db, stream, structure, filename=None, password=None):
+    start = time()
     filename = dump_stream(stream, filename=filename)
-    bulk_load_file(filename, table_name, password=password)
+    dump_time = time() - start
+    bulk_load_file(db, filename, structure, password=password)
+    run_time = time() - start
+    print('run_time: %0.5f seconds' % run_time)
+    print('%0.5f seconds in file dump' % dump_time)
 
 
-def bulk_load_cars():
+def bulk_load_cars(db):
     path = os.path.dirname(__file__) + '/..'
     path = os.path.realpath(path)
     filename = '%s/example_data/cars.csv' % path
-    assert os.path.exists(filename)
-    config = {'db_type': 'postgres'}
-    dbase = DBase(config)
-
-    if 'cars' in dbase.tables:
-        dbase.truncate('cars')
-    else:
-        structure = get_cars_structure()
-        dbase.create_table(structure)
-        dbase.close()
-
-    bulk_load_file(filename, 'cars')
+    structure = get_cars_structure()
+    bulk_load_file(db, filename, structure)

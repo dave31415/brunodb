@@ -3,6 +3,7 @@ from time import time
 from csv import DictReader, DictWriter
 from brunodb.cars_example import stream_cars_repeat, get_cars_structure
 from brunodb import DBase
+from brunodb import bulk_load_postgres
 
 
 bytes_per_line = 31.3
@@ -32,7 +33,7 @@ def print_timing(label, start, n_rows):
 
 
 def load_test(num=10000, memory=False, isolation_level='DEFERRED', journal_mode='OFF',
-              read_test=False, db_type='sqlite', block=False, no_indices=False):
+              read_test=False, db_type='sqlite', block=False, no_indices=False, bulk_load=False):
     stream = stream_cars_repeat(num)
 
     if db_type == 'sqlite':
@@ -67,7 +68,7 @@ def load_test(num=10000, memory=False, isolation_level='DEFERRED', journal_mode=
         print_timing(label, start, num)
     else:
         start = time()
-        dbase.create_and_load_table(stream, structure)
+        dbase.create_and_load_table(stream, structure, bulk_load=bulk_load)
 
         print('------------------------------------')
         label = '%s Block: %s, Mem: %s, Iso: %s, JM: %s' % (db_type, block, memory, isolation_level, journal_mode)

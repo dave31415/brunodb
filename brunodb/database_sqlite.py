@@ -27,6 +27,7 @@ class DBaseSqlite(DBaseGeneric):
         self.db = get_db(filename=db_file,
                          isolation_level=isolation_level,
                          journal_mode=journal_mode)
+        self.db_type = 'sqlite'
 
         logger.info('Tables: %s' % self.tables.__repr__())
 

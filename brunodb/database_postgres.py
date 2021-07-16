@@ -20,6 +20,7 @@ class DBasePostgres(DBaseGeneric):
         super().__init__()
         self.config = config
         self.db = PostgresDB(config=config)
+        self.db_type = 'postgres'
         self.place_holder = "%s"
 
         logger.info('Tables: %s' % self.tables.__repr__())

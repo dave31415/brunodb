@@ -2,7 +2,7 @@ import logging
 from brunodb.sqlite_utils import drop_table, truncate_table
 from brunodb.query import get_query_sql
 from brunodb.table import get_table
-
+from brunodb.bulk_load_postgres import bulk_load_stream
 logger = logging.getLogger(__file__)
 
 
@@ -10,6 +10,7 @@ class DBaseGeneric:
     def __init__(self):
         self.place_holder = "?"
         self.db = None
+        self.db_type = None
 
     def query(self, table, count_table_rows=False, **kwargs):
         sql, vals = get_query_sql(table, count_table_rows=count_table_rows, place_holder=self.place_holder,
@@ -59,9 +60,12 @@ class DBaseGeneric:
     def create_table(self, structure):
         return get_table(self.db, structure)
 
-    def create_and_load_table(self, stream, structure, block=False):
-        table = self.create_table(structure)
-        table.load_table(stream, block=block)
+    def create_and_load_table(self, stream, structure, block=False, bulk_load=False):
+        if bulk_load and self.db_type == 'postgres':
+            bulk_load_stream(self.db, stream, structure)
+        else:
+            table = self.create_table(structure)
+            table.load_table(stream, block=block)
 
     def close(self):
         self.db.close()
