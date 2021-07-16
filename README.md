@@ -28,7 +28,14 @@ usual standards: running on localhost, usual port, user name postgres etc.
 python -m pytest test_postscript 
 ```
 
-Or run all tests
+If you install dbcrossbar you can do much faster postgres loads. 
+Around 80X faster.
+
+```
+python -m pytest test_postgres_bulk_load
+```
+
+Or run all tests if you have postgres and dbcrossbar installed
 
 ```
 python -m pytest
@@ -57,8 +64,9 @@ config = {'db_type': 'postgres'}
 dbase = DBase(config)
 ```
 
-Or:
+Or add other config options:
+
 ```
-config = {'db_type': 'postgres', 'port': 5555, 'password':'123Bannana'}
+config = {'db_type': 'postgres', 'port': 5555, 'password':'foo'}
 dbase = DBase(config)
 ```
