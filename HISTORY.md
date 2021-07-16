@@ -7,5 +7,5 @@ Added Postgres functionality
 version '0.2.0'
 
 Added dbcrossbar fast bulk loads to postgres making it much 
-faster than SQlite rather than much slower
+faster than SQlite rather than much slower as before
 version '0.3.0'
