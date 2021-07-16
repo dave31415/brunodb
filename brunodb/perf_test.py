@@ -3,7 +3,6 @@ from time import time
 from csv import DictReader, DictWriter
 from brunodb.cars_example import stream_cars_repeat, get_cars_structure
 from brunodb import DBase
-from brunodb import bulk_load_postgres
 
 
 bytes_per_line = 31.3

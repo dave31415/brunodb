@@ -1,10 +1,11 @@
 from brunodb.database_sqlite import DBaseSqlite
 try:
     from brunodb.database_postgres import DBasePostgres
-except ImportError as e:
+
+except ImportError:
     def DBasePostgres(*_, **__):
         # only raise the import error if it is actually called
-        raise e
+        raise ImportError
 
 
 def DBase(config):

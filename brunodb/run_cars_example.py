@@ -67,4 +67,3 @@ def run_cars(db_type, block=False, no_close=False):
         assert not dbase.is_open()
     else:
         return dbase
-
