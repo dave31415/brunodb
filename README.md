@@ -1,9 +1,35 @@
 # brunodb
-Lightweight but useful python interface for sqlite and postgres
+Brunodb is a lightweight but useful python interface for sqlite and 
+postgres. It is tailored to data science workflows which are basically 
+high throughout streaming computation patterns (rather than 
+transactional patterns).
+
+The idea is to use databases instead of files and also do most of your
+work in pure python in streaming fashion rather than using batch libraries
+like pandas and other data frame libraries. Databases allow for operations 
+like joins, ordering and simple aggregations without having to put 
+everything in memory.
+
+The idea of the library is part of a strategy 
+to enable very productive proof of concepts on 
+local resources (your laptop) which can migrate naturally and painlessly 
+into production applications without extensive rewrites. 
+Brunodb can be an efficient solution by itself for moderate data sizes.
+Streaming pattern pipelines can be ported to Spark or some 
+distributed cluster compute system fairly easily.
+
+Brunodb frees you from some of the lower level details of dealing with 
+these python database clients. It gives you any easy and natural way to 
+schema and load data from either files or streams. It gives you some 
+shortcuts for doing queries while also allowing you full SQL functionality 
+when you need it. It makes working on either SQLite or Postgres the same.
+And it allows for very fast bulk loads for Postgres by levering 
+the dbcrossbar library.
 
 There are no real dependencies besides sqlite3 which is a standard library 
 module and pytest for running tests. psycopg2 and a postgres database is needed
-to run the interface on postgres.
+to run the interface on postgres. dbcrossbar (easy to install rust library) 
+is required for doing extremely fast bulk loads of postgres.
 
 To install
 
@@ -11,8 +37,11 @@ pip install brunodb
 
 See these for examples of how to use
 
+Loading data:
+
 https://github.com/dave31415/brunodb/blob/master/brunodb/cars_example.py
 
+Querying data:
 
 https://github.com/dave31415/brunodb/blob/master/test/test_cars.py
 
