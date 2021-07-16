@@ -35,15 +35,14 @@ To install
 
 pip install brunodb
 
-See these for examples of how to use
+See [here](./brunodb/cars_example.py) for a demo:
 
-Loading data:
+Or to run demo:
 
-https://github.com/dave31415/brunodb/blob/master/brunodb/cars_example.py
-
-Querying data:
-
-https://github.com/dave31415/brunodb/blob/master/test/test_cars.py
+```
+from brunodb import demo
+demo()
+```
 
 To run tests:
 

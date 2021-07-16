@@ -2,6 +2,7 @@ import sqlite3
 import logging
 from brunodb.sqlite_utils import get_db
 from brunodb.database_generic import DBaseGeneric
+from brunodb.format_query import format_sql_in_context
 
 logger = logging.getLogger(__file__)
 
@@ -33,3 +34,8 @@ class DBaseSqlite(DBaseGeneric):
 
     def is_open(self):
         return db_is_open(self.db)
+
+    def truncate(self, table_name):
+        self.db.commit()
+        sql = format_sql_in_context('DELETE FROM {table_name}', {'table_name': table_name}, None)
+        self.raw_sql_query(sql)

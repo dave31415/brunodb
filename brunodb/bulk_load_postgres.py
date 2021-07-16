@@ -2,7 +2,6 @@ from tempfile import NamedTemporaryFile
 from csv import DictWriter
 import os
 import subprocess
-from brunodb.cars_example import get_cars_structure
 from brunodb.table import get_table
 from time import time
 
@@ -73,6 +72,7 @@ def get_cars_file_name():
 
 
 def bulk_load_cars(dbase):
+    from brunodb.cars_example import get_cars_structure
     filename = get_cars_file_name()
     structure = get_cars_structure()
     bulk_load_file(dbase.db, filename, structure)

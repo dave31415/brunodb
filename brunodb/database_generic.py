@@ -4,6 +4,7 @@ from brunodb.sqlite_utils import drop_table, truncate_table
 from brunodb.query import get_query_sql
 from brunodb.table import get_table
 from brunodb.bulk_load_postgres import bulk_load_stream, bulk_load_file
+from brunodb.format_query import format_sql_in_context
 logger = logging.getLogger(__file__)
 
 
@@ -43,6 +44,10 @@ class DBaseGeneric:
     def tables(self):
         return self.db.get_tables()
 
+    @property
+    def connection(self):
+        return None
+
     def drop(self, table):
         logger.info('dropping table: %s' % table)
         drop_table(self.db, table)
@@ -76,8 +81,31 @@ class DBaseGeneric:
             stream = DictReader(open(filename, 'r'))
             table.load_table(stream, block=block)
 
+    def count(self, table_name):
+        # count rows in table
+        if table_name not in self.tables:
+            logging.warning('Table %s not found' % table_name)
+            return 0
+
+        sql_template = "select count(*) as num from {table_name}"
+        sql = format_sql_in_context(sql_template, {'table_name': table_name}, self.connection)
+        result = list(self.raw_sql_query(sql))
+        return result[0]['num']
+
     def close(self):
+        self.db.commit()
         self.db.close()
 
     def is_open(self):
         pass
+
+    # aliases, used mostly for interactive sessions
+
+    def q(self, *args, **kwargs):
+        return self.query(*args, **kwargs)
+
+    def r(self, *args, **kwargs):
+        return self.raw_sql_query(*args, **kwargs)
+
+    def c(self, *args, **kwargs):
+        return self.count(*args, **kwargs)
