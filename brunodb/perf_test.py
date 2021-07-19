@@ -1,8 +1,9 @@
 from tempfile import NamedTemporaryFile
 from time import time
-from csv import DictReader, DictWriter
+from csv import DictReader
 from brunodb.cars_example import stream_cars_repeat, get_cars_structure
 from brunodb import DBase
+from brunodb.csv_writer import write_csv
 
 
 bytes_per_line = 31.3
@@ -79,14 +80,7 @@ def file_test(num=10000):
     start = time()
     filename = NamedTemporaryFile().name
     stream = stream_cars_repeat(num)
-    row = next(stream)
-    fieldnames = list(row.keys())
-    fp = open(filename, 'w')
-    wr = DictWriter(fp, fieldnames=fieldnames)
-    wr.writeheader()
-    wr.writerow(row)
-    wr.writerows(stream)
-    fp.close()
+    write_csv(filename, stream)
     print_timing('FILE IO WRITE', start, num)
 
     fp = open(filename, 'r')
